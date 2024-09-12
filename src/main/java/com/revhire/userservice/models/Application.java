@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "applications")
+@Table(name = "application")
 public class Application {
 
     @Id
@@ -20,18 +20,18 @@ public class Application {
     @Column(name = "application_id")
     private Long applicationId;
 
-    @ManyToOne
-    @JoinColumn(name = "job_id")
-    private Job job;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "application_date", nullable = false)
+    private Date applicationDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ApplicationStatus status;
 
-    @Column(name = "application_date", nullable = false)
-    private Date applicationDate;
+    @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

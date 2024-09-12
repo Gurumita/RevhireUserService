@@ -53,4 +53,14 @@ public class JobService {
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
     }
+    public void withdrawApplication(Long jobId, Long userId) {
+        Application application = applicationRepository.findByJob_JobIdAndUser_UserId(jobId, userId);
+
+        if (application != null) {
+            application.setStatus(ApplicationStatus.WITHDRAWN);
+            applicationRepository.save(application);
+        } else {
+            throw new RuntimeException("Application not found");
+        }
+    }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
     List<Application> findByUser(User user);
+    Application findByJob_JobIdAndUser_UserId(Long jobId, Long userId);
 }

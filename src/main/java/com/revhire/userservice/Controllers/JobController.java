@@ -32,7 +32,9 @@ public class JobController {
     }
     @PostMapping("/{jobId}/apply/{userId}")
     public void applyForJob(@PathVariable Long jobId, @PathVariable Long userId) {
+
         jobService.applyForJob(jobId, userId);
+
     }
     @GetMapping("/all")
     public ResponseEntity<List<Job>> getAllJobs() {
@@ -44,4 +46,15 @@ public class JobController {
         List<Application> applications = jobService.getUserApplications(userId);
         return new ResponseEntity<>(applications, HttpStatus.OK);
     }
+    @PostMapping("/{jobId}/withdraw/{userId}")
+    public ResponseEntity<String> withdrawApplication(@PathVariable Long jobId, @PathVariable Long userId) {
+        try {
+            jobService.withdrawApplication(jobId, userId);
+            return new ResponseEntity<>("Application withdrawn successfully", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 }
