@@ -29,4 +29,13 @@ public class JobController {
         List<Job> jobs = jobService.searchJobs(jobTitle, location, experienceRequired, skillsRequired, companyName);
         return new ResponseEntity<>(jobs, HttpStatus.OK);
     }
+    @PostMapping("/{jobId}/apply/{userId}")
+    public void applyForJob(@PathVariable Long jobId, @PathVariable Long userId) {
+        jobService.applyForJob(jobId, userId);
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<Job>> getAllJobs() {
+        List<Job> jobs = jobService.getAllJobs();
+        return ResponseEntity.ok(jobs);
+    }
 }
