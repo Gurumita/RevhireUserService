@@ -68,9 +68,9 @@ public class User {
     @Column(name = "modified_at")
     private Instant modifiedAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Skills> skills = new ArrayList<>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore
+//    private List<Skills> skills = new ArrayList<>();
 
 
     @PrePersist

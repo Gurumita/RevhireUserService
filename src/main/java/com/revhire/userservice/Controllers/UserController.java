@@ -19,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<BaseResponse<User>> registerUser(@Valid @RequestBody User user) {
+    public ResponseEntity<BaseResponse<User>> registerUser(@RequestBody User user) {
         BaseResponse<User> baseResponse = new BaseResponse<>();
         System.out.println("Received password: " + user.getPassword());
         try {
@@ -62,16 +62,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(baseResponse);
         }
     }
-
-    @PutMapping("/update")
-    public ResponseEntity<BaseResponse<User>> updateUser(@RequestBody User user) {
-        BaseResponse<User> baseResponse = new BaseResponse<>();
-        baseResponse.setData(userService.updateUser(user.getUserId(), user));
-        baseResponse.setMessages("Updated successfully");
-        baseResponse.setStatus(HttpStatus.OK.value());
-        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
-    }
-
     @GetMapping("/otp")
     public ResponseEntity<BaseResponse<String>> generateOTP(String email) {
         BaseResponse<String> baseResponse = new BaseResponse<>();

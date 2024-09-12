@@ -45,9 +45,9 @@ public class UserService {
         User dbUser = userRepository.findByEmail(user.getEmail());
 
         if (dbUser == null) {
-            if (user.getSkills() == null) {
-                user.setSkills(new ArrayList<>());
-            }
+//            if (user.getSkills() == null) {
+//                user.setSkills(new ArrayList<>());
+//            }
             if (user.getRole() == null || !isValidRole(user.getRole())) {
                 throw new InvalidCredentialsException("Invalid role");
             }
@@ -93,21 +93,6 @@ public class UserService {
         throw new InvalidCredentialsException("Invalid password");
     }
 
-    public User updateUser(long id, User user) {
-        User dbUser = userRepository.findById(id).orElseThrow(() -> new InvalidCredentialsException("User not found"));
-
-        List<Skills> existingSkills = skillsService.getAllSkills();
-        List<Skills> updatedSkills = user.getSkills().stream()
-                .map(skill -> existingSkills.stream()
-                        .filter(s -> s.getSkillName().equals(skill.getSkillName()))
-                        .findFirst()
-                        .orElse(skill))
-                .collect(Collectors.toList());
-
-        user.setSkills(updatedSkills);
-
-        return userRepository.save(modelUpdater.updateFields(dbUser, user));
-    }
 
     public List<User> fetchAllUsers() {
         return userRepository.findAll();
