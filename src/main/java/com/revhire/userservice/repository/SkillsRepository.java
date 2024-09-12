@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SkillsRepository extends JpaRepository<Skills, Long> {
-    Skills findBySkillName(String skill);
+
 }
 
