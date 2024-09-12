@@ -25,4 +25,9 @@ public class PasswordEncrypter {
             throw new RuntimeException("Error occurred while hashing password", e);
         }
     }
+
+    public boolean checkPassword(String rawPassword, String hashedPassword) {
+        String hashedRawPassword = hashPassword(rawPassword);
+        return hashedRawPassword.equals(hashedPassword);
+    }
 }

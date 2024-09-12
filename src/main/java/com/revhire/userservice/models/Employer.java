@@ -1,7 +1,7 @@
 package com.revhire.userservice.models;
 
 
-import com.revhire.userservice.enums.Role;
+import com.revhire.userservice.enums.Position;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,25 +10,24 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.Instant;
-
-
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "user")
-public class User {
+@Table(name = "employer")
+public class Employer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private long userId;
+    @Column(name = "empolyer_id")
+    private long empolyerId;
 
-    @NotBlank(message = "User name is required")
-    @Column(name = "user_name", nullable = false, length = 255)
-    private String userName;
+    @NotBlank(message = "Employer name is required")
+    @Column(name = "employer_name", nullable = false, length = 255)
+    private String employername;
 
 
     //@Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$", message = "Password must meet criteria")
@@ -58,19 +57,14 @@ public class User {
     private String address;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
+    @Column(name = "position", nullable = false)
+    private Position position;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
     @Column(name = "modified_at")
     private Instant modifiedAt;
-
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JsonIgnore
-//    private List<Skills> skills = new ArrayList<>();
-
 
     @PrePersist
     public void onCreate() {
@@ -82,10 +76,6 @@ public class User {
     public void onUpdate() {
         this.modifiedAt = Instant.now();
     }
-    @Column(name = "otp")
-    private String otp;
 
-    @Column(name = "otp_expiry")
-    private Instant otpExpiry;
 
 }

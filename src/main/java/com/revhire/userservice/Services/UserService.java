@@ -12,9 +12,11 @@ import com.revhire.userservice.utilities.ModelUpdater;
 import com.revhire.userservice.utilities.PasswordEncrypter;
 import com.revhire.userservice.utilities.RandomCredentialsGenerator;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,9 +47,9 @@ public class UserService {
         User dbUser = userRepository.findByEmail(user.getEmail());
 
         if (dbUser == null) {
-            if (user.getSkills() == null) {
-                user.setSkills(new ArrayList<>());
-            }
+//            if (user.getSkills() == null) {
+//                user.setSkills(new ArrayList<>());
+//            }
             if (user.getRole() == null || !isValidRole(user.getRole())) {
                 throw new InvalidCredentialsException("Invalid role");
             }
@@ -93,21 +95,6 @@ public class UserService {
         throw new InvalidCredentialsException("Invalid password");
     }
 
-    public User updateUser(long id, User user) {
-        User dbUser = userRepository.findById(id).orElseThrow(() -> new InvalidCredentialsException("User not found"));
-
-        List<Skills> existingSkills = skillsService.getAllSkills();
-        List<Skills> updatedSkills = user.getSkills().stream()
-                .map(skill -> existingSkills.stream()
-                        .filter(s -> s.getSkillName().equals(skill.getSkillName()))
-                        .findFirst()
-                        .orElse(skill))
-                .collect(Collectors.toList());
-
-        user.setSkills(updatedSkills);
-
-        return userRepository.save(modelUpdater.updateFields(dbUser, user));
-    }
 
     public List<User> fetchAllUsers() {
         return userRepository.findAll();
@@ -119,9 +106,14 @@ public class UserService {
             throw new InvalidCredentialsException("Email does not exist");
         }
 
-        String OTP = generator.generateOtp();
+        String otp = generator.generateOtp();
+        user.setOtp(otp);
+        user.setOtpExpiry(Instant.now().plusSeconds(300));
+        userRepository.save(user);
+
         String emailBody = "Hello " + user.getFirstName() + ",\n\n" +
-                "Use the following OTP to reset your password: " + OTP + "\n\n" +
+                "Use the following OTP to reset your password: " + otp + "\n\n" +
+                "This OTP is valid for 5 minutes.\n\n" +
                 "Best regards,\n" +
                 "The RevHire Team";
 
@@ -131,7 +123,79 @@ public class UserService {
             throw new InvalidEmailException("Failed to send email to " + user.getEmail());
         }
 
-        return OTP;
+        return otp;
+    }
+
+    public boolean validateOtp(String email, String otp) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new InvalidCredentialsException("Email does not exist");
+        }
+
+        return otp.equals(user.getOtp()) && user.getOtpExpiry().isAfter(Instant.now());
+    }
+
+    public void resetPasswordUsingOtp(String email, String otp, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new InvalidCredentialsException("Email does not exist");
+        }
+
+        if (user.getOtp() == null || !user.getOtp().equals(otp)) {
+            throw new InvalidCredentialsException("Invalid OTP");
+        }
+
+        if (Instant.now().isAfter(user.getOtpExpiry())) {
+            // OTP has expired
+            user.setOtp(null);
+            user.setOtpExpiry(null);
+            userRepository.save(user);
+            throw new InvalidCredentialsException("OTP has expired");
+        }
+
+        String hashedPassword = passwordEncrypter.hashPassword(newPassword);
+        user.setPassword(hashedPassword);
+        user.setOtp(null);
+        user.setOtpExpiry(null);
+        userRepository.save(user);
+
+        String emailBody = "Hello " + user.getFirstName() + ",\n\n" +
+                "Your password has been successfully reset.\n\n" +
+                "If you did not request this change, please contact support immediately.\n\n" +
+                "Best regards,\n" +
+                "The RevHire Team";
+
+        try {
+            emailService.sendEmail(user.getEmail(), "Password Reset Successful", emailBody);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email notification to " + user.getEmail(), e);
+        }
+    }
+
+    public void updateUserPassword(String email, String oldPassword, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new InvalidCredentialsException("Email does not exist");
+        }
+
+        if (!passwordEncrypter.checkPassword(oldPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Old password is incorrect");
+        }
+
+        user.setPassword(passwordEncrypter.hashPassword(newPassword));
+        userRepository.save(user);
+
+        String emailBody = "Hello " + user.getFirstName() + ",\n\n" +
+                "Your password has been successfully reset.\n\n" +
+                "If you did not request this change, please contact support immediately.\n\n" +
+                "Best regards,\n" +
+                "The RevHire Team";
+
+        try {
+            emailService.sendEmail(user.getEmail(), "Password Reset Successful", emailBody);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email notification to " + user.getEmail(), e);
+        }
     }
 
     public User fetchByEmail(String email) {
@@ -140,15 +204,5 @@ public class UserService {
             throw new NotFoundException("User with email: " + email + " not found");
         }
         return dbUser;
-    }
-
-    public User updateUserPassword(String email, String password) {
-        User dbUser = userRepository.findByEmail(email);
-        if (dbUser == null) {
-            throw new NotFoundException("No user with the email " + email);
-        }
-
-        dbUser.setPassword(passwordEncrypter.hashPassword(password));
-        return userRepository.save(dbUser);
     }
 }
