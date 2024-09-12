@@ -3,7 +3,6 @@ import com.revhire.userservice.Services.UserService;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
 import com.revhire.userservice.models.User;
 import com.revhire.userservice.utilities.BaseResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,12 +61,62 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(baseResponse);
         }
     }
-    @GetMapping("/otp")
-    public ResponseEntity<BaseResponse<String>> generateOTP(String email) {
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestParam String email) {
         BaseResponse<String> baseResponse = new BaseResponse<>();
-        baseResponse.setData(userService.generateOtp(email));
-        baseResponse.setStatus(HttpStatus.CREATED.value());
-        baseResponse.setMessages("OTP generated");
-        return new ResponseEntity<>(baseResponse, HttpStatus.CREATED);
+        try {
+            userService.generateOtp(email);
+            baseResponse.setStatus(HttpStatus.OK.value());
+            baseResponse.setMessages("OTP sent to email");
+            baseResponse.setData("Check your email for the OTP.");
+        } catch (InvalidCredentialsException e) {
+            baseResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            baseResponse.setMessages(e.getMessage());
+        } catch (Exception e) {
+            baseResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            baseResponse.setMessages("Error during OTP generation: " + e.getMessage());
+        }
+        return ResponseEntity.ok(baseResponse);
+    }
+
+    @PostMapping("/reset-password-otp")
+    public ResponseEntity<BaseResponse<String>> resetPasswordUsingOtp(
+            @RequestParam String email,
+            @RequestParam String otp,
+            @RequestParam String newPassword) {
+        BaseResponse<String> baseResponse = new BaseResponse<>();
+        try {
+            userService.resetPasswordUsingOtp(email, otp, newPassword);
+            baseResponse.setStatus(HttpStatus.OK.value());
+            baseResponse.setMessages("Password reset successfully");
+        } catch (InvalidCredentialsException e) {
+            baseResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            baseResponse.setMessages(e.getMessage());
+        } catch (Exception e) {
+            baseResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            baseResponse.setMessages("Error during password reset: " + e.getMessage());
+        }
+        return ResponseEntity.ok(baseResponse);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<BaseResponse<String>> resetPassword(
+            @RequestParam String email,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword) {
+        BaseResponse<String> baseResponse = new BaseResponse<>();
+        try {
+            userService.updateUserPassword(email, oldPassword, newPassword);
+            baseResponse.setStatus(HttpStatus.OK.value());
+            baseResponse.setMessages("Password updated successfully");
+        } catch (InvalidCredentialsException e) {
+            baseResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+            baseResponse.setMessages(e.getMessage());
+        } catch (Exception e) {
+            baseResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            baseResponse.setMessages("Error during password update: " + e.getMessage());
+        }
+        return ResponseEntity.ok(baseResponse);
     }
 }
