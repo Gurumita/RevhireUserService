@@ -1,6 +1,6 @@
 package com.revhire.userservice.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.revhire.userservice.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -11,8 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+
 
 
 @Data
@@ -83,4 +82,10 @@ public class User {
     public void onUpdate() {
         this.modifiedAt = Instant.now();
     }
+    @Column(name = "otp")
+    private String otp;
+
+    @Column(name = "otp_expiry")
+    private Instant otpExpiry;
+
 }
