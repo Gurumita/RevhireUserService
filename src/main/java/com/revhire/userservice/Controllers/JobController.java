@@ -3,6 +3,7 @@ package com.revhire.userservice.Controllers;
 
 import com.revhire.userservice.Services.JobService;
 import com.revhire.userservice.enums.ExperienceRequired;
+import com.revhire.userservice.models.Application;
 import com.revhire.userservice.models.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,10 @@ public class JobController {
     public ResponseEntity<List<Job>> getAllJobs() {
         List<Job> jobs = jobService.getAllJobs();
         return ResponseEntity.ok(jobs);
+    }
+    @GetMapping("/user/{userId}/applications")
+    public ResponseEntity<List<Application>> getUserApplications(@PathVariable Long userId) {
+        List<Application> applications = jobService.getUserApplications(userId);
+        return new ResponseEntity<>(applications, HttpStatus.OK);
     }
 }
