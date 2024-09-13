@@ -43,6 +43,8 @@ public class JobService {
         application.setApplicationDate(new Date());
 
         applicationRepository.save(application);
+        job.getApplicants().add(user);
+        jobRepository.save(job);
     }
 
     public List<Application> getUserApplications(Long userId) {
