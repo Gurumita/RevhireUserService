@@ -43,13 +43,19 @@ public class UserController {
     public ResponseEntity<BaseResponse<AuthResponse>> registerUser(@RequestBody User user) {
         BaseResponse<AuthResponse> baseResponse = new BaseResponse<>();
         try {
-            User createdUser = userService.createUser(user);
+            logger.info("Received registration request for user: {}", user.getUserName());
 
-            // Authenticate and generate JWT token
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(createdUser.getUserName(), user.getPassword())
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Verify the user object
+            logger.info("User details: {}", user);
+
+            User createdUser = userService.createUser(user);
+            logger.info("User created: {}", createdUser);
+
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(createdUser.getUserName(), user.getPassword())
+//            );
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(createdUser.getUserName(), createdUser.getPassword());                 // Authenticate the userAuthentication authentication = authenticationManager.authenticate(authToken);
+            SecurityContextHolder.getContext().setAuthentication(authToken);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(createdUser.getUserName());
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
@@ -58,16 +64,14 @@ public class UserController {
             baseResponse.setData(new AuthResponse(jwt));
             baseResponse.setStatus(HttpStatus.CREATED.value());
             return new ResponseEntity<>(baseResponse, HttpStatus.CREATED);
-        } catch (InvalidCredentialsException e) {
-            baseResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            baseResponse.setMessages(e.getMessage());
-            return new ResponseEntity<>(baseResponse, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            logger.error("Error during registration: ", e);
             baseResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             baseResponse.setMessages("Error during registration: " + e.getMessage());
             return new ResponseEntity<>(baseResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<BaseResponse<AuthResponse>> login(@RequestBody Map<String, String> body) {
@@ -77,6 +81,9 @@ public class UserController {
         BaseResponse<AuthResponse> baseResponse = new BaseResponse<>();
 
         try {
+            // Logging request data
+            logger.info("Attempting login with email: {}", email);
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
             );
@@ -90,10 +97,12 @@ public class UserController {
             baseResponse.setData(new AuthResponse(jwt));
             return ResponseEntity.ok(baseResponse);
         } catch (InvalidCredentialsException e) {
+            logger.warn("Invalid credentials for email: {}", email);
             baseResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             baseResponse.setMessages(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(baseResponse);
         } catch (Exception e) {
+            logger.error("Error during authentication for email: {}", email, e);
             baseResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             baseResponse.setMessages("Error during authentication: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(baseResponse);

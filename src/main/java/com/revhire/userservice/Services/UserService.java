@@ -14,6 +14,7 @@ import com.revhire.userservice.utilities.RandomCredentialsGenerator;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -24,6 +25,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -55,7 +59,7 @@ public class UserService {
             }
 
             String password = user.getPassword();
-            user.setPassword(passwordEncrypter.hashPassword(password));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             User createdUser = userRepository.save(user);
 
             try {
