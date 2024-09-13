@@ -3,9 +3,13 @@ import com.revhire.userservice.Services.UserService;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
 import com.revhire.userservice.models.User;
 import com.revhire.userservice.utilities.BaseResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -13,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -118,5 +123,13 @@ public class UserController {
             baseResponse.setMessages("Error during password update: " + e.getMessage());
         }
         return ResponseEntity.ok(baseResponse);
+    }
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
+        logger.info("Fetching user details for: {}", userDetails != null ? userDetails.getUsername() : "null");
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        return ResponseEntity.ok(userDetails);
     }
 }
