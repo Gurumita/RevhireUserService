@@ -1,6 +1,10 @@
 package com.revhire.userservice.Controllers;
+
+import com.revhire.userservice.Services.CustomUserDetailsService;
 import com.revhire.userservice.Services.UserService;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
+import com.revhire.userservice.jwt.JwtUtil;
+import com.revhire.userservice.models.AuthResponse;
 import com.revhire.userservice.models.User;
 import com.revhire.userservice.utilities.BaseResponse;
 import org.slf4j.Logger;
@@ -10,6 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -22,14 +30,32 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @PostMapping("/register")
-    public ResponseEntity<BaseResponse<User>> registerUser(@RequestBody User user) {
-        BaseResponse<User> baseResponse = new BaseResponse<>();
-        System.out.println("Received password: " + user.getPassword());
+    public ResponseEntity<BaseResponse<AuthResponse>> registerUser(@RequestBody User user) {
+        BaseResponse<AuthResponse> baseResponse = new BaseResponse<>();
         try {
             User createdUser = userService.createUser(user);
+
+            // Authenticate and generate JWT token
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(createdUser.getUserName(), user.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(createdUser.getUserName());
+            String jwt = jwtUtil.generateToken(userDetails.getUsername());
+
             baseResponse.setMessages("Registration Successful");
-            baseResponse.setData(createdUser);
+            baseResponse.setData(new AuthResponse(jwt));
             baseResponse.setStatus(HttpStatus.CREATED.value());
             return new ResponseEntity<>(baseResponse, HttpStatus.CREATED);
         } catch (InvalidCredentialsException e) {
@@ -44,17 +70,24 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<User>> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<BaseResponse<AuthResponse>> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String password = body.get("password");
 
-        BaseResponse<User> baseResponse = new BaseResponse<>();
+        BaseResponse<AuthResponse> baseResponse = new BaseResponse<>();
 
         try {
-            User user = userService.loginUser(email, password);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            String jwt = jwtUtil.generateToken(userDetails.getUsername());
+
             baseResponse.setStatus(HttpStatus.OK.value());
             baseResponse.setMessages("Login Successful");
-            baseResponse.setData(user);
+            baseResponse.setData(new AuthResponse(jwt));
             return ResponseEntity.ok(baseResponse);
         } catch (InvalidCredentialsException e) {
             baseResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -124,6 +157,7 @@ public class UserController {
         }
         return ResponseEntity.ok(baseResponse);
     }
+
     @GetMapping("/user")
     public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
         logger.info("Fetching user details for: {}", userDetails != null ? userDetails.getUsername() : "null");
