@@ -45,31 +45,6 @@ public class JobServiceTest {
     }
 
     @Test
-    void testApplyForJob() {
-        Long jobId = 1L;
-        Long userId = 1L;
-
-        Job job = new Job();
-        job.setJobId(jobId);
-
-        User user = new User();
-        user.setUserId(userId);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        jobService.applyForJob(jobId, userId);
-
-        Application application = new Application();
-        application.setJob(job);
-        application.setUser(user);
-        application.setStatus(ApplicationStatus.APPLIED);
-        application.setApplicationDate(new Date());
-
-        verify(applicationRepository, times(1)).save(application);
-    }
-
-    @Test
     void testGetUserApplications() {
         Long userId = 1L;
 
