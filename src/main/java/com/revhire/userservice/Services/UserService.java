@@ -205,4 +205,7 @@ public class UserService {
         }
         return dbUser;
     }
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 }
