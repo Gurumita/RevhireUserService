@@ -1,7 +1,6 @@
 package com.revhire.userservice.models;
 
 
-import com.revhire.userservice.enums.Position;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,17 +26,15 @@ public class Employer {
 
     @NotBlank(message = "Employer name is required")
     @Column(name = "employer_name", nullable = false, length = 255)
-    private String employername;
-
-
-    //@Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$", message = "Password must meet criteria")
-    @Column(name = "password", nullable = false, length = 255)
-    private String password;
-
+    private String employerName;
 
     @Email(regexp = "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-z]{2,}", message = "Invalid email")
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
+
+    //@Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$", message = "Password must meet criteria")
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
     @NotNull(message = "First name should not be empty")
     @NotBlank(message = "First name cannot be blank")
@@ -56,10 +53,6 @@ public class Employer {
     @Column(name = "address", length = 255)
     private String address;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "position", nullable = false)
-    private Position position;
-
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
@@ -76,6 +69,12 @@ public class Employer {
     public void onUpdate() {
         this.modifiedAt = Instant.now();
     }
+
+    @Column(name = "otp")
+    private String otp;
+
+    @Column(name = "otp_expiry")
+    private Instant otpExpiry;
 
 
 }

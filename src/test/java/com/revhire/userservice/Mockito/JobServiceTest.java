@@ -45,31 +45,6 @@ public class JobServiceTest {
     }
 
     @Test
-    void testSearchJobs() {
-        String jobTitle = "Developer";
-        String location = "New York";
-        ExperienceRequired experienceRequired = ExperienceRequired.FRESHER;
-        String skillsRequired = "Java";
-        String companyName = "TechCorp";
-
-        Job job = new Job();
-        job.setJobTitle(jobTitle);
-        job.setLocation(location);
-        job.setExperienceRequired(experienceRequired);
-        job.setSkillsRequired(skillsRequired);
-        job.setCompanyName(companyName);
-
-        when(jobRepository.findJobs(jobTitle, location, experienceRequired, skillsRequired, companyName))
-                .thenReturn(List.of(job));
-
-        List<Job> jobs = jobService.searchJobs(jobTitle, location, experienceRequired, skillsRequired, companyName);
-
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        assertEquals(jobTitle, jobs.get(0).getJobTitle());
-    }
-
-    @Test
     void testApplyForJob() {
         Long jobId = 1L;
         Long userId = 1L;

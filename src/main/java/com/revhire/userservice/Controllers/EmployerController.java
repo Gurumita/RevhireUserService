@@ -1,33 +1,30 @@
 package com.revhire.userservice.Controllers;
-import com.revhire.userservice.Services.UserService;
+
+import com.revhire.userservice.Services.EmployerService;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
-import com.revhire.userservice.models.User;
+import com.revhire.userservice.models.Employer;
 import com.revhire.userservice.utilities.BaseResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/users")
-public class UserController {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+@RequestMapping("/api/employers")
+public class EmployerController {
 
     @Autowired
-    private UserService userService;
+    private EmployerService employerService;
 
     @PostMapping("/register")
-    public ResponseEntity<BaseResponse<User>> registerUser(@RequestBody User user) {
-        BaseResponse<User> baseResponse = new BaseResponse<>();
+    public ResponseEntity<BaseResponse<Employer>> registerUser(@RequestBody Employer user) {
+        BaseResponse<Employer> baseResponse = new BaseResponse<>();
         System.out.println("Received password: " + user.getPassword());
         try {
-            User createdUser = userService.createUser(user);
+            Employer createdUser = employerService.createUser(user);
             baseResponse.setMessages("Registration Successful");
             baseResponse.setData(createdUser);
             baseResponse.setStatus(HttpStatus.CREATED.value());
@@ -44,14 +41,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<User>> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<BaseResponse<Employer>> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String password = body.get("password");
 
-        BaseResponse<User> baseResponse = new BaseResponse<>();
+        BaseResponse<Employer> baseResponse = new BaseResponse<>();
 
         try {
-            User user = userService.loginUser(email, password);
+            Employer user = employerService.loginUser(email, password);
             baseResponse.setStatus(HttpStatus.OK.value());
             baseResponse.setMessages("Login Successful");
             baseResponse.setData(user);
@@ -71,7 +68,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestParam String email) {
         BaseResponse<String> baseResponse = new BaseResponse<>();
         try {
-            userService.generateOtp(email);
+            employerService.generateOtp(email);
             baseResponse.setStatus(HttpStatus.OK.value());
             baseResponse.setMessages("OTP sent to email");
             baseResponse.setData("Check your email for the OTP.");
@@ -92,7 +89,7 @@ public class UserController {
             @RequestParam String newPassword) {
         BaseResponse<String> baseResponse = new BaseResponse<>();
         try {
-            userService.resetPasswordUsingOtp(email, otp, newPassword);
+            employerService.resetPasswordUsingOtp(email, otp, newPassword);
             baseResponse.setStatus(HttpStatus.OK.value());
             baseResponse.setMessages("Password reset successfully");
         } catch (InvalidCredentialsException e) {
@@ -112,7 +109,7 @@ public class UserController {
             @RequestParam String newPassword) {
         BaseResponse<String> baseResponse = new BaseResponse<>();
         try {
-            userService.updateUserPassword(email, oldPassword, newPassword);
+            employerService.updateUserPassword(email, oldPassword, newPassword);
             baseResponse.setStatus(HttpStatus.OK.value());
             baseResponse.setMessages("Password updated successfully");
         } catch (InvalidCredentialsException e) {
@@ -124,17 +121,32 @@ public class UserController {
         }
         return ResponseEntity.ok(baseResponse);
     }
-    @GetMapping("/user")
-    public ResponseEntity<?> getUserDetails(@AuthenticationPrincipal UserDetails userDetails) {
-        logger.info("Fetching user details for: {}", userDetails != null ? userDetails.getUsername() : "null");
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-        }
-        return ResponseEntity.ok(userDetails);
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Employer> updateEmployer(@PathVariable Long id, @RequestBody Employer employerDetails) {
+        Employer updatedEmployer = employerService.updateEmployer(id, employerDetails);
+        return ResponseEntity.ok(updatedEmployer);
     }
 
-    @GetMapping("/getUserDetails/{userId}")
-    public User getUserById(@PathVariable Long userId) {
-        return userService.getUserById(userId);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteEmployer(@PathVariable Long id) {
+        employerService.deleteEmployer(id);
+        return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Employer> getEmployerById(@PathVariable Long id) {
+        Employer employer = employerService.fetchEmployerById(id);
+        return ResponseEntity.ok(employer);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Employer>> getAllEmployers() {
+        List<Employer> employers = employerService.fetchAllEmployers();
+        return ResponseEntity.ok(employers);
+    }
+
+
+
+
 }

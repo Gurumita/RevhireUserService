@@ -83,7 +83,4 @@ public class Job {
     public void setApplicants(Set<User> applicants) {
         this.applicants = applicants;
     }
-    @OneToMany(mappedBy = "job")
-    private Set<Application> applications = new HashSet<>();
-
 }

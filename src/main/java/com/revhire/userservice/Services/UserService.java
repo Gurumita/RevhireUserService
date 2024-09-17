@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -204,5 +205,10 @@ public class UserService {
             throw new NotFoundException("User with email: " + email + " not found");
         }
         return dbUser;
+    }
+
+    public User getUserById(Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        return userOptional.orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     }
 }
