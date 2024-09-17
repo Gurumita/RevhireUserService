@@ -7,14 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
 import java.util.List;
-<<<<<<< HEAD
-import java.util.Set;
-=======
 import java.util.Optional;
->>>>>>> 84975b8 (code)
+
 
 @RestController
 @RequestMapping("/api/jobs")

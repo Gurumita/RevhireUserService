@@ -4,11 +4,8 @@ import com.revhire.userservice.models.*;
 import com.revhire.userservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-<<<<<<< HEAD
 
-import java.io.ByteArrayOutputStream;
-=======
->>>>>>> 84975b8 (code)
+
 
 import java.util.List;
 import java.util.Optional;
