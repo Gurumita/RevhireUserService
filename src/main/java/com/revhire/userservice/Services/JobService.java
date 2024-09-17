@@ -1,12 +1,11 @@
 package com.revhire.userservice.Services;
 
-
 import com.revhire.userservice.enums.ApplicationStatus;
-import com.revhire.userservice.enums.ExperienceRequired;
 import com.revhire.userservice.models.Application;
 import com.revhire.userservice.models.Job;
 import com.revhire.userservice.models.User;
 import com.revhire.userservice.repository.ApplicationRepository;
+import com.revhire.userservice.repository.EmployerRepository;
 import com.revhire.userservice.repository.JobRepository;
 import com.revhire.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +13,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JobService {
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
+    private EmployerRepository employeeRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -24,12 +30,18 @@ public class JobService {
     @Autowired
     private ApplicationRepository applicationRepository;
 
-    @Autowired
-    private JobRepository jobRepository;
-
-    public List<Job> searchJobs(String jobTitle, String location, ExperienceRequired experienceRequired, String skillsRequired, String companyName) {
-        return jobRepository.findJobs(jobTitle, location, experienceRequired, skillsRequired, companyName);
+    public Job createJob(Job job) {
+        return jobRepository.save(job);
     }
+
+    public Optional<Job> getJobById(Long jobId) {
+        return jobRepository.findById(jobId);
+    }
+
+    public List<Job> getAllJobs() {
+        return jobRepository.findAll();
+    }
+
     public void applyForJob(Long jobId, Long userId) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
@@ -52,9 +64,7 @@ public class JobService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return applicationRepository.findByUser(user);
     }
-    public List<Job> getAllJobs() {
-        return jobRepository.findAll();
-    }
+
     public void withdrawApplication(Long jobId, Long userId) {
         Application application = applicationRepository.findByJob_JobIdAndUser_UserId(jobId, userId);
 
@@ -65,4 +75,13 @@ public class JobService {
             throw new RuntimeException("Application not found");
         }
     }
+
+    public List<Job> getJobsByEmployerId(Long employerId) {
+        return jobRepository.findByEmployer_EmpolyerId(employerId);
+    }
+
+    public List<Job> getJobsNotAppliedByUser(Long userId) {
+        return jobRepository.findJobsNotAppliedByUser(userId);
+    }
+
 }

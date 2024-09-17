@@ -25,4 +25,11 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             @Param("experienceRequired") ExperienceRequired experienceRequired,
             @Param("skillsRequired") String skillsRequired,
             @Param("companyName") String companyName);
+
+    List<Job> findByEmployer_EmpolyerId(Long employerId);
+
+    @Query("SELECT j FROM Job j WHERE :userId NOT IN (SELECT u.userId FROM j.applicants u)")
+    List<Job> findJobsNotAppliedByUser(@Param("userId") Long userId);
+
+
 }
