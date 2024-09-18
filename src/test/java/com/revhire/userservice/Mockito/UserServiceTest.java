@@ -47,7 +47,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_ShouldCreateUser_WhenEmailDoesNotExist() throws MessagingException {
+    void createUser_ShouldCreateUser_WhenEmailDoesNotExist() throws MessagingException, InvalidCredentialsException, InvalidEmailException {
         User user = new User();
         user.setEmail("test@example.com");
         user.setPassword("password");
@@ -70,7 +70,7 @@ public class UserServiceTest {
 
 
     @Test
-    void loginUser_ShouldReturnUser_WhenCredentialsAreValid() {
+    void loginUser_ShouldReturnUser_WhenCredentialsAreValid() throws InvalidCredentialsException {
         User user = new User();
         user.setEmail("test@example.com");
         user.setPassword("hashedPassword");
@@ -87,7 +87,7 @@ public class UserServiceTest {
 
 
     @Test
-    void generateOtp_ShouldGenerateOtp_WhenEmailExists() throws MessagingException {
+    void generateOtp_ShouldGenerateOtp_WhenEmailExists() throws MessagingException, InvalidCredentialsException, InvalidEmailException {
         User user = new User();
         user.setEmail("test@example.com");
         user.setFirstName("John");
@@ -104,7 +104,7 @@ public class UserServiceTest {
 
 
     @Test
-    void validateOtp_ShouldReturnTrue_WhenOtpIsValid() {
+    void validateOtp_ShouldReturnTrue_WhenOtpIsValid() throws InvalidCredentialsException {
         User user = new User();
         user.setOtp("123456");
         user.setOtpExpiry(Instant.now().plusSeconds(60));
@@ -117,7 +117,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void validateOtp_ShouldReturnFalse_WhenOtpIsInvalid() {
+    void validateOtp_ShouldReturnFalse_WhenOtpIsInvalid() throws InvalidCredentialsException {
         User user = new User();
         user.setOtp("123456");
         user.setOtpExpiry(Instant.now().plusSeconds(60));
@@ -130,7 +130,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void resetPasswordUsingOtp_ShouldResetPassword_WhenOtpIsValid() throws MessagingException {
+    void resetPasswordUsingOtp_ShouldResetPassword_WhenOtpIsValid() throws MessagingException, InvalidCredentialsException {
         User user = new User();
         user.setOtp("123456");
         user.setOtpExpiry(Instant.now().plusSeconds(60));
@@ -150,7 +150,7 @@ public class UserServiceTest {
 
 
     @Test
-    void updateUserPassword_ShouldUpdatePassword_WhenOldPasswordIsValid() throws MessagingException {
+    void updateUserPassword_ShouldUpdatePassword_WhenOldPasswordIsValid() throws MessagingException, InvalidCredentialsException {
         User user = new User();
         user.setEmail("test@example.com");
         user.setPassword("hashedOldPassword");
@@ -168,7 +168,7 @@ public class UserServiceTest {
 
 
     @Test
-    void fetchByEmail_ShouldReturnUser_WhenUserExists() {
+    void fetchByEmail_ShouldReturnUser_WhenUserExists() throws NotFoundException {
         User user = new User();
         user.setEmail("test@example.com");
 

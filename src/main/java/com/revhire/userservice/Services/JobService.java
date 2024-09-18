@@ -18,17 +18,19 @@ import java.util.Optional;
 @Service
 public class JobService {
 
-    @Autowired
-    private JobRepository jobRepository;
+    private final JobRepository jobRepository;
+    private final EmployerRepository employerRepository;
+    private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Autowired
-    private EmployerRepository employeeRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ApplicationRepository applicationRepository;
+    public JobService(JobRepository jobRepository, EmployerRepository employerRepository,
+                      UserRepository userRepository, ApplicationRepository applicationRepository) {
+        this.jobRepository = jobRepository;
+        this.employerRepository = employerRepository;
+        this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
+    }
 
     public Job createJob(Job job) {
         return jobRepository.save(job);

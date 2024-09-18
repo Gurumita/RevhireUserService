@@ -1,6 +1,7 @@
 package com.revhire.userservice.Controllers;
 
 import com.revhire.userservice.Services.EmployerService;
+import com.revhire.userservice.exceptions.EmployerNotFoundException;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
 import com.revhire.userservice.models.Employer;
 import com.revhire.userservice.utilities.BaseResponse;
@@ -123,19 +124,19 @@ public class EmployerController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Employer> updateEmployer(@PathVariable Long id, @RequestBody Employer employerDetails) {
+    public ResponseEntity<Employer> updateEmployer(@PathVariable Long id, @RequestBody Employer employerDetails) throws EmployerNotFoundException {
         Employer updatedEmployer = employerService.updateEmployer(id, employerDetails);
         return ResponseEntity.ok(updatedEmployer);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteEmployer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEmployer(@PathVariable Long id) throws EmployerNotFoundException {
         employerService.deleteEmployer(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employer> getEmployerById(@PathVariable Long id) {
+    public ResponseEntity<Employer> getEmployerById(@PathVariable Long id) throws EmployerNotFoundException {
         Employer employer = employerService.fetchEmployerById(id);
         return ResponseEntity.ok(employer);
     }

@@ -3,6 +3,7 @@ package com.revhire.userservice.Mockito;
 import com.revhire.userservice.Controllers.EmployerController;
 import com.revhire.userservice.Services.EmployerService;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
+import com.revhire.userservice.exceptions.InvalidEmailException;
 import com.revhire.userservice.models.Employer;
 import com.revhire.userservice.utilities.BaseResponse;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ public class EmployerControllerTest {
     }
 
     @Test
-    public void testRegisterUser_Success() {
+    public void testRegisterUser_Success() throws InvalidCredentialsException, InvalidEmailException {
         Employer mockEmployer = new Employer();
         BaseResponse<Employer> mockResponse = new BaseResponse<>();
         mockResponse.setMessages("Registration Successful");
@@ -42,7 +43,7 @@ public class EmployerControllerTest {
     }
 
     @Test
-    public void testRegisterUser_Failure() {
+    public void testRegisterUser_Failure() throws InvalidCredentialsException, InvalidEmailException {
         Employer mockEmployer = new Employer();
         InvalidCredentialsException exception = new InvalidCredentialsException("Invalid credentials");
 

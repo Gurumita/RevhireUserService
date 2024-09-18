@@ -6,45 +6,39 @@ import com.revhire.userservice.exceptions.InvalidCredentialsException;
 import com.revhire.userservice.exceptions.InvalidEmailException;
 import com.revhire.userservice.exceptions.NotFoundException;
 import com.revhire.userservice.models.User;
-import com.revhire.userservice.models.Skills;
 import com.revhire.userservice.utilities.EmailService;
 import com.revhire.userservice.utilities.ModelUpdater;
 import com.revhire.userservice.utilities.PasswordEncrypter;
 import com.revhire.userservice.utilities.RandomCredentialsGenerator;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private EmailService emailService;
-
-    @Autowired
     private SkillsService skillsService;
-
-    @Autowired
     private PasswordEncrypter passwordEncrypter;
-
-    @Autowired
     private RandomCredentialsGenerator generator;
-
-    @Autowired
     private ModelUpdater modelUpdater;
 
-    public User createUser(User user) {
+    @Autowired
+    public UserService(UserRepository userRepository,EmailService emailService,SkillsService skillsService, PasswordEncrypter passwordEncrypter,RandomCredentialsGenerator generator,ModelUpdater modelUpdater){
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+        this.skillsService = skillsService;
+        this.passwordEncrypter = passwordEncrypter;
+        this.generator = generator;
+        this.modelUpdater = modelUpdater;
+    }
+
+    public User createUser(User user) throws InvalidCredentialsException, InvalidEmailException {
         User dbUser = userRepository.findByEmail(user.getEmail());
 
         if (dbUser == null) {
@@ -81,7 +75,7 @@ public class UserService {
         emailService.sendEmail(email, subject, body);
     }
 
-    public User loginUser(String email, String password) {
+    public User loginUser(String email, String password) throws InvalidCredentialsException {
         User dbUser = userRepository.findByEmail(email);
         if (dbUser == null) {
             throw new InvalidCredentialsException("Invalid email");
@@ -101,7 +95,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public String generateOtp(String email) {
+    public String generateOtp(String email) throws InvalidEmailException, InvalidCredentialsException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -127,7 +121,7 @@ public class UserService {
         return otp;
     }
 
-    public boolean validateOtp(String email, String otp) {
+    public boolean validateOtp(String email, String otp) throws InvalidCredentialsException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -136,7 +130,7 @@ public class UserService {
         return otp.equals(user.getOtp()) && user.getOtpExpiry().isAfter(Instant.now());
     }
 
-    public void resetPasswordUsingOtp(String email, String otp, String newPassword) {
+    public void resetPasswordUsingOtp(String email, String otp, String newPassword) throws InvalidCredentialsException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -173,7 +167,7 @@ public class UserService {
         }
     }
 
-    public void updateUserPassword(String email, String oldPassword, String newPassword) {
+    public void updateUserPassword(String email, String oldPassword, String newPassword) throws InvalidCredentialsException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -199,7 +193,7 @@ public class UserService {
         }
     }
 
-    public User fetchByEmail(String email) {
+    public User fetchByEmail(String email) throws NotFoundException {
         User dbUser = userRepository.findByEmail(email);
         if (dbUser == null) {
             throw new NotFoundException("User with email: " + email + " not found");

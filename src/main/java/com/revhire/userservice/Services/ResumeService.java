@@ -5,31 +5,30 @@ import com.revhire.userservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ResumeService {
 
-    @Autowired
-    private SkillsRepository skillsRepository;
+    private final SkillsRepository skillsRepository;
+    private final EducationRepository educationRepository;
+    private final ExperienceRepository experienceRepository;
+    private final LanguageRepository languageRepository;
+    private final SummaryRepository summaryRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private EducationRepository educationRepository;
-
-    @Autowired
-    private ExperienceRepository experienceRepository;
-
-    @Autowired
-    private LanguageRepository languageRepository;
-
-    @Autowired
-    private SummaryRepository summaryRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public ResumeService(SkillsRepository skillsRepository, EducationRepository educationRepository,
+                         ExperienceRepository experienceRepository, LanguageRepository languageRepository,
+                         SummaryRepository summaryRepository, UserRepository userRepository) {
+        this.skillsRepository = skillsRepository;
+        this.educationRepository = educationRepository;
+        this.experienceRepository = experienceRepository;
+        this.languageRepository = languageRepository;
+        this.summaryRepository = summaryRepository;
+        this.userRepository = userRepository;
+    }
 
     public Resume getResumeByUserId(Long userId) {
         Resume resume = new Resume();
@@ -74,6 +73,7 @@ public class ResumeService {
 
         return resume;
     }
+
     public void saveResume(Long userId, Resume resume) {
         // Find the user
         Optional<User> userOptional = userRepository.findById(userId);
