@@ -19,19 +19,23 @@ import java.util.List;
 @Service
 public class EmployerService {
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
+    private final EmployerRepository employerRepository;
+    private final PasswordEncrypter passwordEncrypter;
+    private final RandomCredentialsGenerator generator;
 
     @Autowired
-    private EmployerRepository employerRepository;
+    public EmployerService(EmailService emailService,
+                           EmployerRepository employerRepository,
+                           PasswordEncrypter passwordEncrypter,
+                           RandomCredentialsGenerator generator) {
+        this.emailService = emailService;
+        this.employerRepository = employerRepository;
+        this.passwordEncrypter = passwordEncrypter;
+        this.generator = generator;
+    }
 
-    @Autowired
-    private PasswordEncrypter passwordEncrypter;
-
-    @Autowired
-    private RandomCredentialsGenerator generator;
-
-    public Employer createUser(Employer employer) {
+    public Employer createUser(Employer employer) throws InvalidEmailException, InvalidCredentialsException {
         Employer dbUser = employerRepository.findByEmail(employer.getEmail());
 
         if (dbUser == null) {
@@ -57,7 +61,7 @@ public class EmployerService {
         emailService.sendEmail(email, subject, body);
     }
 
-    public Employer loginUser(String email, String password) {
+    public Employer loginUser(String email, String password) throws InvalidCredentialsException {
         Employer dbUser = employerRepository.findByEmail(email);
         if (dbUser == null) {
             throw new InvalidCredentialsException("Invalid email");
@@ -72,7 +76,7 @@ public class EmployerService {
         throw new InvalidCredentialsException("Invalid password");
     }
 
-    public String generateOtp(String email) {
+    public String generateOtp(String email) throws InvalidCredentialsException, InvalidEmailException {
         Employer employer = employerRepository.findByEmail(email);
         if (employer == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -98,7 +102,7 @@ public class EmployerService {
         return otp;
     }
 
-    public boolean validateOtp(String email, String otp) {
+    public boolean validateOtp(String email, String otp) throws InvalidCredentialsException {
         Employer employer = employerRepository.findByEmail(email);
         if (employer == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -107,7 +111,7 @@ public class EmployerService {
         return otp.equals(employer.getOtp()) && employer.getOtpExpiry().isAfter(Instant.now());
     }
 
-    public void resetPasswordUsingOtp(String email, String otp, String newPassword) {
+    public void resetPasswordUsingOtp(String email, String otp, String newPassword) throws InvalidCredentialsException {
         Employer employer = employerRepository.findByEmail(email);
         if (employer == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -144,7 +148,7 @@ public class EmployerService {
         }
     }
 
-    public void updateUserPassword(String email, String oldPassword, String newPassword) {
+    public void updateUserPassword(String email, String oldPassword, String newPassword) throws InvalidCredentialsException {
         Employer employer = employerRepository.findByEmail(email);
         if (employer == null) {
             throw new InvalidCredentialsException("Email does not exist");
@@ -170,7 +174,7 @@ public class EmployerService {
         }
     }
 
-    public Employer updateEmployer(Long id, Employer employerDetails) {
+    public Employer updateEmployer(Long id, Employer employerDetails) throws EmployerNotFoundException {
         Employer existingEmployer = employerRepository.findById(id)
                 .orElseThrow(() -> new EmployerNotFoundException("Employer not found with id: " + id));
 
@@ -198,13 +202,13 @@ public class EmployerService {
         return employerRepository.save(existingEmployer);
     }
 
-    public void deleteEmployer(Long id) {
+    public void deleteEmployer(Long id) throws EmployerNotFoundException {
         Employer employer = employerRepository.findById(id)
                 .orElseThrow(() -> new EmployerNotFoundException("Employer not found with id: " + id));
         employerRepository.delete(employer);
     }
 
-    public Employer fetchEmployerById(Long id) {
+    public Employer fetchEmployerById(Long id) throws EmployerNotFoundException {
         return employerRepository.findById(id)
                 .orElseThrow(() -> new EmployerNotFoundException("Employer not found with id: " + id));
     }
@@ -213,16 +217,16 @@ public class EmployerService {
         return employerRepository.findAll();
     }
 
-//    public Employer login(String email, String password) {
-//        Employer employer = employerRepository.findByEmail(email)
-//                .orElseThrow(() -> new EmployerNotFoundException("Employer not found with email: " + email));
-//
-//        System.out.println("Employer found with email: " + email);
-//        if (!PasswordUtils.verifyPassword(password, employer.getPassword())) {
-//            throw new IllegalArgumentException("Invalid password");
-//        }
-//
-//        return employer;
-//    }
-
+    // Uncomment and update if needed
+    // public Employer login(String email, String password) {
+    //     Employer employer = employerRepository.findByEmail(email)
+    //             .orElseThrow(() -> new EmployerNotFoundException("Employer not found with email: " + email));
+    //
+    //     System.out.println("Employer found with email: " + email);
+    //     if (!PasswordUtils.verifyPassword(password, employer.getPassword())) {
+    //         throw new IllegalArgumentException("Invalid password");
+    //     }
+    //
+    //     return employer;
+    // }
 }
