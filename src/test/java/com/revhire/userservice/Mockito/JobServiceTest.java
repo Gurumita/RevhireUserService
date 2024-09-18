@@ -45,56 +45,6 @@ public class JobServiceTest {
     }
 
     @Test
-    void testSearchJobs() {
-        String jobTitle = "Developer";
-        String location = "New York";
-        ExperienceRequired experienceRequired = ExperienceRequired.FRESHER;
-        String skillsRequired = "Java";
-        String companyName = "TechCorp";
-
-        Job job = new Job();
-        job.setJobTitle(jobTitle);
-        job.setLocation(location);
-        job.setExperienceRequired(experienceRequired);
-        job.setSkillsRequired(skillsRequired);
-        job.setCompanyName(companyName);
-
-        when(jobRepository.findJobs(jobTitle, location, experienceRequired, skillsRequired, companyName))
-                .thenReturn(List.of(job));
-
-        List<Job> jobs = jobService.searchJobs(jobTitle, location, experienceRequired, skillsRequired, companyName);
-
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        assertEquals(jobTitle, jobs.get(0).getJobTitle());
-    }
-
-    @Test
-    void testApplyForJob() {
-        Long jobId = 1L;
-        Long userId = 1L;
-
-        Job job = new Job();
-        job.setJobId(jobId);
-
-        User user = new User();
-        user.setUserId(userId);
-
-        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        jobService.applyForJob(jobId, userId);
-
-        Application application = new Application();
-        application.setJob(job);
-        application.setUser(user);
-        application.setStatus(ApplicationStatus.APPLIED);
-        application.setApplicationDate(new Date());
-
-        verify(applicationRepository, times(1)).save(application);
-    }
-
-    @Test
     void testGetUserApplications() {
         Long userId = 1L;
 

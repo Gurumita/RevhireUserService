@@ -1,11 +1,9 @@
 package com.revhire.userservice.repository;
 
-import com.revhire.userservice.models.Employer;
+import com.revhire.userservice.models.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmployerRepository extends JpaRepository<Employer,Long> {
-    Employer findByEmail(String email);
-
+public interface CategoryRepository extends JpaRepository<Category, Long> {
 }

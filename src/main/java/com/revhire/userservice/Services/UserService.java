@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -205,6 +206,7 @@ public class UserService {
         }
         return dbUser;
     }
+
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElse(null);
     }
