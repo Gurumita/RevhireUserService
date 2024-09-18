@@ -46,6 +46,9 @@ public class Employer {
     @Column(name = "last_name", length = 255)
     private String lastName;
 
+    @Column(name = "company_name")
+    private String companyName;
+
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Phone number must be valid")
     @Column(name = "contact_number", length = 255)
     private String contactNumber;
