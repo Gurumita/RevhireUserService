@@ -32,7 +32,7 @@ public class ApplicationControllerWebMvcTest {
         Mockito.when(applicationService.updateApplicationStatus(any(Long.class), any(Long.class), any(ApplicationStatus.class)))
                 .thenReturn(mockApplication);
 
-        mockMvc.perform(put("http://localhost:8080/api/applications/updateStatus/1/1")
+        mockMvc.perform(put("/api/applications/updateStatus/1/1")
                         .param("status", "APPLIED")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

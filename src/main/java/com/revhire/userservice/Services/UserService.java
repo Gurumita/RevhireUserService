@@ -208,7 +208,6 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        return userOptional.orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        return userRepository.findById(userId).orElse(null);
     }
 }
