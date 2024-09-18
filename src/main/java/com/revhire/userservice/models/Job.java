@@ -30,7 +30,7 @@ public class Job {
     @Column(name = "job_title", nullable = false, length = 100)
     private String jobTitle;
 
-    @JoinColumn(name = "company_name")
+    @Column(name = "company_name")
     private String companyName;
 
     @Column(name = "job_description", columnDefinition = "TEXT", nullable = false)
