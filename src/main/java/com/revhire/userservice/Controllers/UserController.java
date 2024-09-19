@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import com.revhire.userservice.dto.AuthRequest;
 
 import java.util.Map;
 
@@ -44,14 +45,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<User>> login(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String password = body.get("password");
+    public ResponseEntity<BaseResponse<User>> login(@RequestBody AuthRequest authRequest) {
+//        String email = authRequest.getEmail();
+//        String password = authRequest.getPassword();
 
         BaseResponse<User> baseResponse = new BaseResponse<>();
 
         try {
-            User user = userService.loginUser(email, password);
+            User user = userService.loginUser(authRequest);
             baseResponse.setStatus(HttpStatus.OK.value());
             baseResponse.setMessages("Login Successful");
             baseResponse.setData(user);
@@ -66,6 +67,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(baseResponse);
         }
     }
+
 
     @PostMapping("/forgot-password")
     public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestParam String email) {

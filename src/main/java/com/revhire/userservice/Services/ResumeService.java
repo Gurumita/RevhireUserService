@@ -1,5 +1,6 @@
 package com.revhire.userservice.Services;
 
+import com.revhire.userservice.dto.Resume;
 import com.revhire.userservice.models.*;
 import com.revhire.userservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;

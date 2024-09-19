@@ -1,5 +1,6 @@
 package com.revhire.userservice.Services;
 
+import com.revhire.userservice.dto.AuthRequest;
 import com.revhire.userservice.repository.UserRepository;
 import com.revhire.userservice.enums.Role;
 import com.revhire.userservice.exceptions.InvalidCredentialsException;
@@ -75,21 +76,20 @@ public class UserService {
         emailService.sendEmail(email, subject, body);
     }
 
-    public User loginUser(String email, String password) throws InvalidCredentialsException {
-        User dbUser = userRepository.findByEmail(email);
+    public User loginUser(AuthRequest authRequest) throws InvalidCredentialsException {
+        User dbUser = userRepository.findByEmail(authRequest.getEmail());
         if (dbUser == null) {
             throw new InvalidCredentialsException("Invalid email");
         }
 
-        String hashedPassword = passwordEncrypter.hashPassword(password);
+        String hashedPassword = passwordEncrypter.hashPassword(authRequest.getPassword());
         if (hashedPassword.equals(dbUser.getPassword())) {
-            dbUser.setPassword(null);  // Hide password
+            dbUser.setPassword(null); // Hide password
             return dbUser;
         }
 
         throw new InvalidCredentialsException("Invalid password");
     }
-
 
     public List<User> fetchAllUsers() {
         return userRepository.findAll();

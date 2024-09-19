@@ -1,5 +1,6 @@
-package com.revhire.userservice.models;
+package com.revhire.userservice.dto;
 
+import com.revhire.userservice.models.*;
 import lombok.Data;
 
 import java.util.List;

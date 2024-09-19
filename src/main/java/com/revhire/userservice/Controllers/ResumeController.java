@@ -1,7 +1,7 @@
 package com.revhire.userservice.Controllers;
 
 import com.revhire.userservice.Services.ResumeService;
-import com.revhire.userservice.models.Resume;
+import com.revhire.userservice.dto.Resume;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.revhire.userservice.models;
+package com.revhire.userservice.dto;
 
 
 public class AuthResponse {
