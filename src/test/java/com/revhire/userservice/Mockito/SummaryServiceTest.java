@@ -33,7 +33,7 @@ public class SummaryServiceTest {
         Summary summary = new Summary();
         summary.setSummaryId(1L);
         summary.setSummaryText("Test Summary");
-        summary.setUser(null); // assuming user is not set
+        summary.setUser(null);
 
         when(summaryRepository.save(any(Summary.class))).thenReturn(summary);
 
